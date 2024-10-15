@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  role String
+  imageURL String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content Article[]
+  notificationReceiver Notification[] @relation("NotifReceiver")
+  notificationSender Notification[] @relation("NotifSender")
+  bookmark Bookmark[]
+  like Like[]
+  view View[]
+}
+
+model Article {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  imageURL String?
+  isFinished Boolean @default(false)
+  isWorthyShowing Boolean @default(false)
+  isDelete Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  categoryId Int @default(0)
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  notification Notification[]
+  bookmark Bookmark[]
+  like Like[]
+  view View[]
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  article Article[]
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  message String
+  category String @unique
+  finishStatus String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  receiverId Int
+  senderId Int @default(0)
+  articleId Int
+  receiver User @relation("NotifReceiver",fields: [receiverId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sender User @relation("NotifSender", fields: [senderId], references: [id], onDelete: SetDefault, onUpdate: Cascade)
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Bookmark {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articleId Int
+  userId Int
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@id([userId,articleId])
+  @@unique([userId,articleId])
+}
+
+model Like {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articleId Int
+  userId Int
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@id([userId,articleId])
+  @@unique([userId,articleId])
+}
+
+model View {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articleId Int
+  userId Int
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@id([userId,articleId])
+  @@unique([userId,articleId])
+}

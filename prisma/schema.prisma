@@ -61,7 +61,7 @@ model Category {
 model Notification {
   id Int @id @default(autoincrement())
   message String
-  category String @unique
+  category String
   finishStatus String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

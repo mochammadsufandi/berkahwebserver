@@ -20,8 +20,3 @@ export interface Count {
   like: number;
   view: number;
 }
-
-export interface ArticleWithDetails extends Article {
-  user: User;
-  _count: Count;
-}

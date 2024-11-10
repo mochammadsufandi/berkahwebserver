@@ -1,13 +1,43 @@
 import { PrismaClient } from "@prisma/client";
-import { LoginParams } from "../interface/ParamsInterface";
+import { LoginParams, RegisterParams } from "../interface/ParamsInterface";
 import { CustomResponseError } from "../middleware/errorClass/errorClass";
-import { comparePassword } from "../utils/bcrypt";
+import { comparePassword, hashPassword } from "../utils/bcrypt";
 import { generateToken } from "../utils/jwt";
 
 const prisma = new PrismaClient();
 
 export class AuthService {
-  static async register(): Promise<void> {}
+  static async register(params: RegisterParams): Promise<void> {
+    const { name, email, password, role, imageURL } = params;
+
+    if (!name || !email || !password || !role)
+      throw new CustomResponseError({
+        name: "InvalidInputType",
+        statusCode: 400,
+        message: "Please Input All Required Field",
+      });
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingUser)
+      throw new CustomResponseError({
+        name: "User Already Exist",
+        statusCode: 400,
+        message: "User is Already Exist, please use the other email",
+      });
+
+    const hashedPassword = hashPassword(password);
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        imageURL,
+      },
+    });
+  }
 
   static async login(params: LoginParams): Promise<string> {
     const { email, password } = params;
@@ -39,13 +69,14 @@ export class AuthService {
           message: "Your Password that you input is wrong, please Login again",
         });
       }
-    }
-    if (!checkedPassword) {
-      throw new CustomResponseError({
-        name: "Wrong Password",
-        statusCode: 400,
-        message: "Your Password that you input is wrong, please Login again",
-      });
+    } else {
+      if (!checkedPassword) {
+        throw new CustomResponseError({
+          name: "Wrong Password",
+          statusCode: 400,
+          message: "Your Password that you input is wrong, please Login again",
+        });
+      }
     }
 
     const token = generateToken({

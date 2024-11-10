@@ -4,6 +4,7 @@ import {
   getIsFinishedArticleParams,
   getIsWorthyShowingArticleParams,
   HardDeleteArticleParams,
+  RegisterParams,
   ReviewRevisionNotificationParams,
 } from "../interface/ParamsInterface";
 
@@ -78,5 +79,15 @@ export function parseAnnulingArticleParams(body: any): FinishReviewParams {
     category: body.category,
     finishStatus: body.finishStatus,
     isWorthyShowing: body.isWorthyShowing === "true",
+  };
+}
+
+export function parseRegisterParams(body: any): RegisterParams {
+  return {
+    name: body.name,
+    email: body.email,
+    password: body.password,
+    role: body.role.toLowerCase(),
+    imageURL: body.imageURL,
   };
 }

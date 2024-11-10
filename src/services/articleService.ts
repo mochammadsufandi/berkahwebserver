@@ -165,7 +165,14 @@ class ArticleService {
         message: `Article with id ${articleId} is not found`,
       });
     }
-
+    console.log(existingArticle.isWorthyShowing);
+    if (!existingArticle.isWorthyShowing) {
+      throw new CustomResponseError({
+        name: "Activity is Not Allowed",
+        statusCode: 400,
+        message: "Article has been suspended, you can't suspend again",
+      });
+    }
     if (!sender) {
       throw new CustomResponseError({
         name: "NotFoundUser",
@@ -511,7 +518,7 @@ class ArticleService {
       throw new CustomResponseError({
         name: "Activity is Not Allowed",
         statusCode: 400,
-        message: "Article has been suspended, you can't suspend again",
+        message: "Article has been accepted, you can't accept again",
       });
     }
     if (!sender) {

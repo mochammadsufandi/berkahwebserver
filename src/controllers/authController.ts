@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../services/authService";
 import { parseRegisterParams } from "../utils/parseParams";
+import { uploadImageUser } from "../utils/uploadImage";
 
 const accessToken = process.env.ACCESS_TOKEN as string;
 
@@ -10,15 +11,23 @@ export class AuthController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {
-      const params = parseRegisterParams(req.body);
-      await AuthService.register(params);
-      res.status(200).json({
-        message: "Register is Success, please login to enter app",
-      });
-    } catch (err) {
-      next(err);
-    }
+    uploadImageUser(req, res, async (multererror) => {
+      if (multererror) return next(multererror);
+
+      try {
+        const files = req.files as {
+          [fieldname: string]: Express.Multer.File[];
+        };
+        const params = { ...req.body, image: files?.image };
+
+        await AuthService.register(params);
+        res.status(200).json({
+          message: "Register is Success, please login to enter app",
+        });
+      } catch (err) {
+        next(err);
+      }
+    });
   }
 
   static async login(

@@ -31,7 +31,7 @@ export interface RegisterParams {
   email: string;
   password: string;
   role: string;
-  imageURL?: string;
+  image: Express.Multer.File[];
 }
 
 // Login Params

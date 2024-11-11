@@ -88,6 +88,6 @@ export function parseRegisterParams(body: any): RegisterParams {
     email: body.email,
     password: body.password,
     role: body.role.toLowerCase(),
-    imageURL: body.imageURL,
+    image: body.image,
   };
 }

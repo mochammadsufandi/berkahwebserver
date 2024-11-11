@@ -2,14 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CustomResponseError } from "./errorClass/errorClass";
 import { verifyToken } from "../utils/jwt";
 import { PrismaClient } from "@prisma/client";
-import { UserPayload } from "../interface/ParamsInterface";
 const prisma = new PrismaClient();
-
-declare module "express" {
-  export interface Request {
-    loggedUser?: UserPayload;
-  }
-}
 
 export const authentication = async (
   req: Request,
